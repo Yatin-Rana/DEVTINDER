@@ -2,6 +2,7 @@ const express = require('express'); //referencing to that exoress folder inside 
 const connectDb = require('../src/config/database')
 const app = express(); //creating an express application
 const User = require('./models/user')
+const {validateSignupData} = require('./utils/validatation')
 
 //first connect to the database then start listening 
 app.use(express.json())
@@ -24,12 +25,9 @@ app.post('/signup', async (req, res) => {
     //indstury standard is to create helper functions for these tasks
     
     
-    const data = req.body;
+   validateSignupData(req);
 
-
-
-
-    const user = new User(data);
+    const user = new User(req.body);
     try {
         await user.save();
         res.send("user signed up successfully");
