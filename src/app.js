@@ -66,14 +66,14 @@ app.post('/login', async (req, res) => {
             throw new Error("invalid credentials");
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        const token = jwt.sign({ userId: user._id }, "yehaisecret")
-
+        const isMatch = await user.validatePassword(password);
+// const token = jwt.sign({ userId: user._id }, "yehaisecret", { expiresIn: '1d' })
         if (!isMatch) {
-            throw new Error("invalid credentials");
+            throw new Error("invalid credentials came after schema check of pass");
         }
-        res.cookie("token", token)
+
+        const token = await user.getJWT();
+        res.cookie("token", token, { expires: new Date(Date.now() + 900000) })
         res.send("logged in successfully and setted cookie");
 
     } catch (err) {
@@ -82,10 +82,17 @@ app.post('/login', async (req, res) => {
 
 })
 
+app.post('/sendConnectionRequest', userAuth, async (req, res) => {
+    const user = req.user;
+    console.log(user)
+    res.send(user.firstName + ' ' + 'sent a connection request')
+})
+
 
 app.get('/profile', userAuth, async (req, res) => {
     try {
         const user = req.user;
+        console.log(user)
         // console.log(user);
         res.send(user);
     } catch (err) {
