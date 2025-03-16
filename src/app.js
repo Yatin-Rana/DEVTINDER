@@ -2,10 +2,15 @@ const express = require('express'); //referencing to that exoress folder inside 
 const connectDb = require('../src/config/database')
 const app = express(); //creating an express application
 const User = require('./models/user')
-const {validateSignupData} = require('./utils/validatation')
+const { validateSignupData } = require('./utils/validatation')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+var cookieParser = require('cookie-parser')
+const { userAuth } = require('./middlewares/authMiddleware')
 
 //first connect to the database then start listening 
 app.use(express.json())
+app.use(cookieParser())
 
 connectDb().then(() => {
     console.log('db connected')
@@ -18,24 +23,76 @@ connectDb().then(() => {
 
 
 app.post('/signup', async (req, res) => {
-    
+
     //validation of data
     //encrypt password before saving
-
     //indstury standard is to create helper functions for these tasks
-    
-    
-   validateSignupData(req);
 
-    const user = new User(req.body);
     try {
+        validateSignupData(req);
+
+        const { firstName, lastName, emailId, password, age, gender, photoUrl, about } = req.body;
+
+        const passwordHash = await bcrypt.hash(req.body.password, 8);
+
+
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash,
+            age,
+            gender,
+            photoUrl,
+            about,
+        }
+        );
         await user.save();
         res.send("user signed up successfully");
     } catch (err) {
         console.log("error occured during singup", err.message);
-        res.status(500).send("bund marao");
+        res.status(500).send("Error while signing up :" + err.message);
     }
 })
+
+
+app.post('/login', async (req, res) => {
+    const { emailId, password } = req.body;
+
+    try {
+        const user = await User.findOne({ emailId });
+
+        if (!user) {
+            throw new Error("invalid credentials");
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        const token = jwt.sign({ userId: user._id }, "yehaisecret")
+
+        if (!isMatch) {
+            throw new Error("invalid credentials");
+        }
+        res.cookie("token", token)
+        res.send("logged in successfully and setted cookie");
+
+    } catch (err) {
+        res.status(500).send("Error while logging in :" + err.message);
+    }
+
+})
+
+
+app.get('/profile', userAuth, async (req, res) => {
+    try {
+        const user = req.user;
+        // console.log(user);
+        res.send(user);
+    } catch (err) {
+        res.status(500).send("Error while getting profile :" + err.message);
+    }
+})
+
 //get all records
 app.get('/feed', async (req, res) => {
     const users = await User.find({});
