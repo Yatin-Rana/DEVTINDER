@@ -1,8 +1,7 @@
 const express = require('express')
 const User = require('../models/user');
 const { validateSignupData } = require('../utils/validatation');
-const bcrypt = require('bcrypt')
-
+const bcrypt = require('bcrypt');
 const authRouter = express.Router();
 
 authRouter.post('/signup', async (req, res) => {
@@ -50,7 +49,7 @@ authRouter.post('/login', async (req, res) => {
         }
 
         const isMatch = await user.validatePassword(password);
-// const token = jwt.sign({ userId: user._id }, "yehaisecret", { expiresIn: '1d' })
+        // const token = jwt.sign({ userId: user._id }, "yehaisecret", { expiresIn: '1d' })
         if (!isMatch) {
             throw new Error("invalid credentials came after schema check of pass");
         }
@@ -65,5 +64,12 @@ authRouter.post('/login', async (req, res) => {
 
 })
 
+authRouter.post('/logout',  async (req, res) => {
+
+    res.clearCookie('token')
+    res.send('logged out')
+    
+    // console.log('user has been redirected to /admin')
+})
 
 module.exports = authRouter 
