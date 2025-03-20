@@ -26,6 +26,9 @@ const connectionRequestSchema = new mongoose.Schema(
     }
 );
 
+//this will make the query fast and do optimization and stuff
+connectionRequestSchema.index({fromUserId:1,toUserId:1});
+
 const ConnectionRequest = mongoose.model('ConnectionRequest', connectionRequestSchema);
 
 module.exports = 
