@@ -4,7 +4,7 @@ const User = require('../models/user');
 const userAuth = async (req, res, next) => {
     try {
         const token = req.cookies.token;
-        console.log(token)
+        // console.log(token)
         if (!token) throw new Error("No token found!!!")
 
         const decodedData = jwt.verify(token, "yehaisecret")
