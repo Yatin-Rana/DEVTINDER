@@ -5,7 +5,7 @@ const userAuth = async (req, res, next) => {
     try {
         const token = req.cookies.token;
         // console.log(token)
-        if (!token) throw new Error("No token found!!!")
+        if (!token) return res.status(401).json({message:"unauthorized user,please Login"})
 
         const decodedData = jwt.verify(token, "yehaisecret")
         // console.log(decodedData)

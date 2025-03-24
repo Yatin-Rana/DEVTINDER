@@ -56,7 +56,7 @@ authRouter.post('/login', async (req, res) => {
 
         const token = await user.getJWT();
         res.cookie("token", token, { expires: new Date(Date.now() + 900000) })
-        res.send("logged in successfully and setted cookie");
+        res.send(user);
 
     } catch (err) {
         res.status(500).send("Error while logging in :" + err.message);
@@ -66,7 +66,7 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/logout',  async (req, res) => {
 
-    res.clearCookie('token')
+    res.clearCookie('token',{path:'/'})
     res.send('logged out')
     
     // console.log('user has been redirected to /admin')
