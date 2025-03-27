@@ -29,8 +29,12 @@ authRouter.post('/signup', async (req, res) => {
             about,
         }
         );
-        await user.save();
-        res.send("user signed up successfully");
+        const savedUser = await user.save();
+        const token = await savedUser.getJWT();
+
+        res.cookie("token", token, { expires: new Date(Date.now() + 900000) })
+        res.send(savedUser)
+
     } catch (err) {
         console.log("error occured during singup", err.message);
         res.status(500).send("Error while signing up :" + err.message);
@@ -51,7 +55,7 @@ authRouter.post('/login', async (req, res) => {
         const isMatch = await user.validatePassword(password);
         // const token = jwt.sign({ userId: user._id }, "yehaisecret", { expiresIn: '1d' })
         if (!isMatch) {
-            throw new Error("invalid credentials came after schema check of pass");
+            throw new Error("invalid credentials");
         }
 
         const token = await user.getJWT();
@@ -59,16 +63,16 @@ authRouter.post('/login', async (req, res) => {
         res.send(user);
 
     } catch (err) {
-        res.status(500).send("Error while logging in :" + err.message);
+        res.status(500).send(err.message);
     }
 
 })
 
-authRouter.post('/logout',  async (req, res) => {
+authRouter.post('/logout', async (req, res) => {
 
-    res.clearCookie('token',{path:'/'})
+    res.clearCookie('token', { path: '/' })
     res.send('logged out')
-    
+
     // console.log('user has been redirected to /admin')
 })
 

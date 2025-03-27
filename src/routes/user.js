@@ -14,7 +14,7 @@ userRouter.get('/user/requests/received', userAuth, async (req, res) => {
         const fetchConnectionRequests = await ConnectionRequest.find({
             toUserId: loggedInUser._id,
             status: "interested"
-        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "gender", "about", "skills"])
+        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "gender", "about", "skills" ,"age"])
 
         return res.status(200).json({
             message: "received requests fetched successfully",
@@ -38,8 +38,8 @@ userRouter.get('/user/connections', userAuth, async (req, res) => {
                 { toUserId: loggedInUser._id, status: "accepted" },
                 { fromUserId: loggedInUser._id, status: "accepted" }
             ]
-        }).populate("fromUserId", ["firstName", "lastName", "age", "gender", "skills", "about"])
-            .populate("toUserId", ["firstName", "lastName", "age", "gender", "skills", "about"])
+        }).populate("fromUserId", ["firstName", "lastName", "age", "gender", "skills", "about" , "photoUrl"])
+            .populate("toUserId", ["firstName", "lastName", "age", "gender", "skills", "about" , "photoUrl"])
 
 
         const data = getConnections.map((row) => {
@@ -49,7 +49,7 @@ userRouter.get('/user/connections', userAuth, async (req, res) => {
             return row.toUserId;
         })
 
-        return res.status(200).json({ data: data });
+        return res.status(200).json({data});
 
 
 
@@ -90,7 +90,7 @@ userRouter.get('/feed', userAuth, async (req, res) => {
             ]
         }).select(USER_SAFE_DATA).skip(skip).limit(limit);
 
-        return res.status(200).json(user);
+        return res.status(200).json({data:user});
 
     } catch (err) {
         return res.status(400).json({ message: err.message })
