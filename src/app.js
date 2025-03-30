@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express'); //referencing to that express folder inside node modules
 const connectDb = require('../src/config/database')
 const app = express(); //creating an express application
@@ -27,8 +28,8 @@ app.use('/', userRouter);
 
 connectDb().then(() => {
     console.log('db connected')
-    app.listen(7777, () => {
-        console.log('server running on port 7777');
+    app.listen(process.env.PORT, () => {
+        console.log(`server running on port ${process.env.PORT}`);
     })
 }).catch((err) => {
     console.log('error occured while connecting to db', err.message)

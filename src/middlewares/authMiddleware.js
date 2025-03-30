@@ -7,7 +7,7 @@ const userAuth = async (req, res, next) => {
         // console.log(token)
         if (!token) return res.status(401).json({message:"unauthorized user,please Login"})
 
-        const decodedData = jwt.verify(token, "yehaisecret")
+        const decodedData = jwt.verify(token, process.env.JWT_SECRET)
         // console.log(decodedData)
 
         const { _id } = decodedData;

@@ -3,6 +3,7 @@ const User = require('../models/user');
 const { validateSignupData } = require('../utils/validatation');
 const bcrypt = require('bcrypt');
 const authRouter = express.Router();
+const sendEmail = require('../utils/sendEmail')
 
 authRouter.post('/signup', async (req, res) => {
 
@@ -31,7 +32,8 @@ authRouter.post('/signup', async (req, res) => {
         );
         const savedUser = await user.save();
         const token = await savedUser.getJWT();
-
+        
+       
         res.cookie("token", token, { expires: new Date(Date.now() + 900000) })
         res.send(savedUser)
 
@@ -59,6 +61,8 @@ authRouter.post('/login', async (req, res) => {
         }
 
         const token = await user.getJWT();
+        const emailResult = await sendEmail.run()
+        console.log(emailResult);
         res.cookie("token", token, { expires: new Date(Date.now() + 900000) })
         res.send(user);
 
